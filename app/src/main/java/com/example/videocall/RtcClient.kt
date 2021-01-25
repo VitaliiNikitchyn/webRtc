@@ -18,6 +18,11 @@ class RtcClient(context: Context, observer: PeerConnection.Observer) {
         override fun onCreateFailure(p0: String?) {}
     }
 
+    private val constraints = MediaConstraints().apply {
+        mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
+        mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
+    }
+
     init {
         // initPeerConnectionFactory
         val options = PeerConnectionFactory.InitializationOptions.builder(context)
@@ -89,12 +94,11 @@ class RtcClient(context: Context, observer: PeerConnection.Observer) {
         peerConnection?.addStream(localStream)
     }
 
-    private fun PeerConnection.call(sdpObserver: SdpObserver) {
-        val constraints = MediaConstraints().apply {
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
-        }
+    fun close() {
+        peerConnection?.close()
+    }
 
+    private fun PeerConnection.call(sdpObserver: SdpObserver) {
         createOffer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(desc: SessionDescription?) {
                 setLocalDescription(emptySdpObserver, desc)
@@ -104,11 +108,6 @@ class RtcClient(context: Context, observer: PeerConnection.Observer) {
     }
 
     private fun PeerConnection.answer(sdpObserver: SdpObserver) {
-        val constraints = MediaConstraints().apply {
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"))
-            mandatory.add(MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"))
-        }
-
         createAnswer(object : SdpObserver by sdpObserver {
             override fun onCreateSuccess(description: SessionDescription?) {
                 setLocalDescription(emptySdpObserver, description)

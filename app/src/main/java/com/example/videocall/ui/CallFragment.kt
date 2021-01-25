@@ -185,6 +185,7 @@ class CallFragment : Fragment() {
     override fun onDestroyView() {
         signalingVM.clearSignals()
         connectionVM.setConnectionMode(ConnectionMode.Unconnected)
+        rtcClient.close()
         super.onDestroyView()
     }
 
